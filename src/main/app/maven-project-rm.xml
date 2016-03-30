@@ -23,7 +23,7 @@ http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/jso
 	<jms:activemq-connector name="Active_MQ" brokerURL="vm://localhost" validateConnections="true" doc:name="Active MQ" />
 
 	<flow name="logFlights">
-		<jms:inbound-endpoint queue="flights" doc:name="JMS" />
+		<jms:inbound-endpoint doc:name="JMS" connector-ref="Active_MQ" queue="flights"/>
 		<logger level="INFO" doc:name="Logger" message="#[payload]" />
 	</flow>
 	
@@ -39,7 +39,7 @@ http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/jso
 	<flow name="retrieveFlights">
 		<http:listener config-ref="HTTP_Listener_Configuration" path="/flights" doc:name="HTTP" />
 		<db:select config-ref="Derby_Configuration" doc:name="Database">
-			<db:parameterized-query><![CDATA[select * from flights]]></db:parameterized-query>
+            <db:parameterized-query><![CDATA[select * from flights]]></db:parameterized-query>
 		</db:select>
 		<json:object-to-json-transformer doc:name="Object to JSON" />
         <set-property propertyName="Content-type" value="application/json" doc:name="Content-Type"/>
