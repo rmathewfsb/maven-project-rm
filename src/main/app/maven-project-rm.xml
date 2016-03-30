@@ -36,12 +36,13 @@ http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/jso
 		<json:object-to-json-transformer doc:name="Object to JSON" />
 	</flow>
 	
-	<flow name="requestFlights">
+	<flow name="retrieveFlights">
 		<http:listener config-ref="HTTP_Listener_Configuration" path="/flights" doc:name="HTTP" />
 		<db:select config-ref="Derby_Configuration" doc:name="Database">
 			<db:parameterized-query><![CDATA[select * from flights]]></db:parameterized-query>
 		</db:select>
 		<json:object-to-json-transformer doc:name="Object to JSON" />
+        <set-property propertyName="Content-type" value="application/json" doc:name="Content-Type"/>
 		<jms:outbound-endpoint connector-ref="Active_MQ" doc:name="JMS" queue="flights" />
 	</flow>
 	
