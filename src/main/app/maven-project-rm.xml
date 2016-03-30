@@ -1,49 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule
-xmlns:http="http://www.mulesoft.org/schema/mule/http" 
-xmlns:json="http://www.mulesoft.org/schema/mule/json" 
-xmlns:jms="http://www.mulesoft.org/schema/mule/jms" 
-xmlns:db="http://www.mulesoft.org/schema/mule/db" 
-xmlns="http://www.mulesoft.org/schema/mule/core"
-xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" 
-xmlns:spring="http://www.springframework.org/schema/beans" 
-xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
 http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
 http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd">
 
-	<http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration" />
-	
+	<http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration" />	
+	<spring:beans>
+		<spring:bean id="Bean" name="Bean" class="com.mulesoft.training.Database" />
+	</spring:beans>
 	<db:derby-config name="Derby_Configuration" url="jdbc:derby:memory:muleEmbeddedDB;create=true" doc:name="Derby Configuration" />
 	
 	<jms:activemq-connector name="Active_MQ" brokerURL="vm://localhost" validateConnections="true" doc:name="Active MQ" />
-
+	
 	<flow name="logFlights">
-		<jms:inbound-endpoint doc:name="JMS" connector-ref="Active_MQ" queue="flights"/>
+		<jms:inbound-endpoint doc:name="JMS" connector-ref="Active_MQ" queue="flights" />
 		<logger level="INFO" doc:name="Logger" message="#[payload]" />
 	</flow>
-	
+
 	<flow name="mavenFlow">
 		<http:listener config-ref="HTTP_Listener_Configuration" path="/hello" allowedMethods="GET" doc:name="HTTP" />
 		<set-payload value="#['Hello Maven']" doc:name="Set Payload" />
 	</flow>
-	
+
 	<flow name="maven-project-rmFlow">
 		<json:object-to-json-transformer doc:name="Object to JSON" />
 	</flow>
-	
+
 	<flow name="retrieveFlights">
 		<http:listener config-ref="HTTP_Listener_Configuration" path="/flights" doc:name="HTTP" />
 		<db:select config-ref="Derby_Configuration" doc:name="Database">
-            <db:parameterized-query><![CDATA[select * from flights]]></db:parameterized-query>
+			<db:parameterized-query><![CDATA[select * from flights]]></db:parameterized-query>
 		</db:select>
 		<json:object-to-json-transformer doc:name="Object to JSON" />
-        <set-property propertyName="Content-type" value="application/json" doc:name="Content-Type"/>
+		<set-property propertyName="Content-type" value="application/json" doc:name="Content-Type" />
 		<jms:outbound-endpoint connector-ref="Active_MQ" doc:name="JMS" queue="flights" />
 	</flow>
-	
+
 </mule>
