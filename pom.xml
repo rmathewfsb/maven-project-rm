@@ -128,9 +128,9 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.geronimo.plugins</groupId>
-			<artifactId>derby</artifactId>
-			<version>${derby.version}</version>
+		<groupId>org.apache.derby</groupId>
+		<artifactId>derby</artifactId>
+		<version>10.10.2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.activemq</groupId>
